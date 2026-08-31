@@ -1,13 +1,18 @@
 # crash-test
 
-**Crash stand-in users into your plan before you build it.**
+**Crash stand-in users into your feature idea before you build it.**
 
-> You bring a plan. `crash-test` researches it, casts stand-in users, crashes them
-> into the plan, and every wreck becomes a decision you rule on — then it re-runs
-> to see what your ruling broke.
+> You bring an idea. `crash-test` researches it, sketches the flow, casts stand-in
+> users, crashes them into it, and every wreck becomes a decision you rule on —
+> then it re-runs to see what your ruling broke. You end up with an implementation
+> plan you and the agent actually agree on.
 
 An agent skill for the gap between *"I have an idea"* and *"I'm writing code"* —
 where most product decisions get made accidentally, by whoever typed first.
+
+**One sentence is enough to start.** No ticket, no spec, no existing plan. If all
+you have is *"I want users to be able to archive a bunch of records at once,"* that
+is a valid input — producing the plan is what this is for.
 
 ---
 
@@ -150,20 +155,49 @@ follows before you trust it with your plan.
 /crash-test
 ```
 
-Then point it at a plan. It accepts anything: a markdown spec, a Jira ticket, a
-design doc, a PR description, or three paragraphs typed into the chat.
+Then tell it what you want to build. Start with as little as you have:
 
 ```
+/crash-test  "I want users to be able to archive a bunch of records at once"
+/crash-test  "some kind of saved-filters thing for the patient list?"
 /crash-test  docs/plans/bulk-archive.md
-/crash-test  CHD-1234
-/crash-test  "Let users archive multiple records at once from the list view"
+/crash-test  ENG-1234
 ```
+
+An idea in one sentence, a half-formed hunch, a ticket, a markdown spec, a design
+doc, a PR description — all valid. **The less you bring, the more the first pass
+gives you**, because everything nobody has decided yet shows up as an explicit
+finding rather than as something the agent quietly picks for you.
+
+### Starting from an idea
+
+When there's no plan to walk, the agent researches the problem and then **sketches
+one** — the shortest defensible flow that would accomplish your goal, grounded in
+how shipped products solve it. Then it crashes dummies into that.
+
+Two things keep the sketch honest, because an agent left to its own devices will
+walk its own proposal too gently:
+
+- **Every invented step is marked `[STRAWMAN]`**, so you can see at a glance what
+  you said versus what it made up. A gap in your material means you left something
+  out; a gap in its material means it did. Those are different, and conflating them
+  would corrupt the run.
+- **On the two or three forks that decide the whole shape of the feature** — inline
+  versus panel, one screen versus a wizard, per-item versus bulk — it sketches
+  *two incompatible options* instead of one, and makes you pick. A single strawman
+  anchors you to its framing, and the honest failure mode is that you'd read
+  something plausible, correct two details, and ship its opinions believing they
+  were yours.
+
+You should expect to disagree with a lot of the first sketch. That's the point —
+disagreeing with something concrete is enormously easier than answering *"so how
+should selection work?"* from a blank page.
 
 ### What happens, in five phases
 
 | Phase | What it does | What you do |
 |---|---|---|
-| **0 · Recon & compile** | Researches in parallel — your codebase, how shipped products solve this, API and platform limits, any real evidence about your users. Then compiles your plan into a step-by-step spec where every step must state what's visible, what actions exist, what the copy literally says, and what happens next. | Read the compiled spec. Correct any misreadings — a misread step invalidates everything downstream of it. |
+| **0 · Recon, sketch, compile** | Researches in parallel — your codebase, how shipped products solve this, API and platform limits, any real evidence about your users. Sketches any part of the flow you haven't specified, marked `[STRAWMAN]`. Then compiles the whole thing into a step-by-step spec where every step must state what's visible, what actions exist, what the copy literally says, and what happens next. | Read it. Correct misreadings and push back on the sketch — a wrong step invalidates everything downstream of it. |
 | **1 · Cast** | Proposes 3–4 **dummies**: stand-in users spanning the axes that actually break products — frequency of use, motivation, working context, data volume, and the mental model they arrive with. Plus exactly one worst case. Every trait is tagged with where it came from. | Edit the cast. Fix anything tagged `[INVENTED ⚠️]` — you almost certainly know the real answer, and this is the cheapest, highest-leverage checkpoint in the whole run. |
 | **2 · Walk** | Each dummy attempts their job against the spec, step by step, evaluated against four gates. Halts at the first blocker. | Nothing — read the wrecks. |
 | **3 · Rulings** | Blockers ranked by how many dummies they block and what they cost to fix, each with a recommendation and a citation. | Rule on each one: **accept**, **substitute** your own fix, or **overrule** the finding entirely. All three are valid and all three get recorded. |
@@ -259,7 +293,7 @@ The reference material is readable on its own, whether or not you run the skill:
 - [`references/gates.md`](skills/crash-test/references/gates.md) — the four gates, their failure signatures, and typical fixes
 - [`references/casting.md`](skills/crash-test/references/casting.md) — how to build stand-in users that find things
 - [`references/findings.md`](skills/crash-test/references/findings.md) — the finding taxonomy, severity, and halting rules
-- [`references/compiling.md`](skills/crash-test/references/compiling.md) — turning a prose plan into something walkable
+- [`references/compiling.md`](skills/crash-test/references/compiling.md) — sketching a flow and turning it into something walkable
 - [`references/ux-lenses.md`](skills/crash-test/references/ux-lenses.md) — the design principles it cites, plus a pattern-space table
 - [`references/developer-cast.md`](skills/crash-test/references/developer-cast.md) — the four gates applied to APIs and internal work
 
@@ -274,9 +308,11 @@ crash-test dummy for a driver.
 
 **It does not write feature code.** It edits the plan. Something else builds it.
 
-**It can only walk what you specify.** A vague plan in, vague findings out — with
-the mitigation that the vagueness itself gets itemised, which is usually the most
-useful thing you learn on a first run.
+**It can only walk something concrete** — but it will build that itself if you
+don't have one. What it can't do is read your mind about the parts it sketched, so
+the first pass on a bare idea is mostly the agent showing you its assumptions and
+you correcting them. That's the cheapest correcting you will ever do, but it does
+mean the first round asks more of you than later rounds.
 
 ## Design notes
 

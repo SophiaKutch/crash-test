@@ -1,13 +1,15 @@
 ---
 name: crash-test
-description: Stress-test a product or feature plan by walking research-grounded stand-in users through it until it survives. Use when starting a new product, planning a feature, or reviewing a spec before implementation — any time the plan and the agent's understanding of it need to converge. Triggers on "crash test this", "crash test my plan", "walk users through this plan", "stress test this design", "poke holes in this spec".
+description: Turn a feature idea or a written plan into an implementation plan both the engineer and the agent agree on, by walking research-grounded stand-in users through it until it survives. Use when starting a new product, sketching a feature, or reviewing a spec before implementation. Works from a single sentence of an idea — no ticket, spec, or existing plan required. Triggers on "crash test this", "crash test this idea", "I want to build X", "walk users through this", "stress test this design", "poke holes in this plan", "help me plan this feature".
 ---
 
 # Crash Test
 
-You are about to crash stand-in users into the engineer's plan and report the wreckage.
+You are about to crash stand-in users into a feature idea and report the wreckage.
 
-The engineer brings a plan. You compile it into something walkable, cast **dummies** — deliberately imperfect stand-in users — give each one a real job, and walk them through the plan step by step. Every place a dummy stalls becomes a decision the engineer rules on. Then you re-walk, because their ruling almost certainly broke something downstream.
+The engineer brings **an idea or a plan** — anything from one sentence to a full spec. You turn it into something walkable, cast **dummies** — deliberately imperfect stand-in users — give each one a real job, and walk them through it step by step. Every place a dummy stalls becomes a decision the engineer rules on. Then you re-walk, because their ruling almost certainly broke something downstream.
+
+**An idea is a completely valid starting point.** Do not ask the engineer to go away and write a plan first. Producing the plan is what this skill is for.
 
 The end state is a single plan that you and the engineer both understand the same way, with every point where you disagreed surfaced, decided by them, and written down.
 
@@ -15,13 +17,25 @@ The end state is a single plan that you and the engineer both understand the sam
 
 1. **Look it up before you ask.** Spend your own effort before you spend the engineer's. Read the codebase, fetch the prior art, check the API docs, query the schema, count the actual rows. Anything you can establish on your own, establish and cite. Reserve their attention for what a research pass cannot settle: the judgment calls.
 2. **Quote or it's a gap.** Every verdict you issue must quote the line of the plan it judges. If you cannot quote a line, you have found a `GAP` — the plan is silent — not a prediction. This rule is what makes your output auditable. Do not break it.
-3. **Never invent affordances.** A dummy may only use what the step's compiled spec actually exposes. If the plan never mentioned a back button, there is no back button.
+3. **Never invent affordances mid-walk.** A dummy may only use what the step's compiled spec actually exposes. If the spec never mentioned a back button, there is no back button. Inventing a flow is legitimate in Phase 0 and only in Phase 0, where it is labelled `[STRAWMAN]` and shown to the engineer before anything walks. Quietly patching a hole once the walk is underway destroys the finding it would have produced.
 4. **Halt at blockers.** When a dummy cannot correctly proceed, stop that walk. Do not narrate past a blocker — everything downstream of it is unknowable, and guessing there is how this skill turns into fiction.
 5. **Only blockers get asked about.** Non-blocking friction is logged and deferred. A dummy can generate nits forever; the engineer's attention is finite.
 6. **The engineer can overrule anything.** When they do, record what you predicted, what they ruled, and why. That record is the deliverable, not a footnote to it.
 7. **Never silently truncate.** If you capped a run, skipped a dummy, or dropped findings, say so explicitly and say what you dropped.
 
-## Phase 0 — Recon and compile
+## Phase 0 — Recon, sketch, compile
+
+### How much you were given
+
+Establish this first, because it changes what Phase 0 does:
+
+| Input | What you do |
+|---|---|
+| **An idea** — a sentence, a paragraph, a "wouldn't it be good if…" | Research, then **sketch** a strawman flow, then compile it. Most of the flow will be yours. |
+| **A partial plan** — bullets, a ticket body, some decisions made | Research, compile what exists, sketch only the missing stretches. Mark clearly which is which. |
+| **A full spec** | Research and compile. Sketch nothing. |
+
+Never send the engineer away to write something first. If all you have is *"I want people to be able to archive a bunch of records at once,"* that is enough to start.
 
 **Recon.** Dispatch parallel subagents. Do not ask the engineer for any of this:
 
@@ -30,7 +44,17 @@ The end state is a single plan that you and the engineer both understand the sam
 - **Constraints** — platform limits, API rate limits, data volumes, browser support, auth model. Check them; do not assume them.
 - **User evidence** — anything real that describes who uses this and how: support tickets, analytics, competitor reviews, the engineer's own notes. This grounds the cast. Where no evidence exists, you will mark the trait `[INVENTED]`.
 
-**Compile.** Convert the prose plan into a walkable spec. For every step, record four fields:
+**Sketch** (only for the stretches nobody has specified). Draft the minimum flow that would accomplish the engineer's stated goal, grounded in the prior art you just found. Keep it deliberately plain — the shortest defensible path, not your best design. You are building something to break, not something to admire.
+
+Three rules govern sketched material, and they exist because **you are about to crash-test your own proposal**, which you will do too gently unless forced:
+
+1. **Mark every sketched step `[STRAWMAN]`.** The engineer must be able to see at a glance what they said versus what you invented. A `GAP` in their material means they left something out; a `GAP` in yours means you did. Conflating the two corrupts the whole run.
+2. **Scrutinise sketched steps harder, not softer.** Your natural bias is to walk your own flow successfully. Counter it deliberately: on sketched steps, assume the dummy fails and try to prove they succeed, rather than the reverse.
+3. **On the two or three highest-leverage forks, sketch two incompatible options rather than one.** Where the whole shape of the feature hangs on a choice — inline versus panel, one screen versus a wizard, per-item versus bulk — a single strawman anchors the engineer to your framing, and they will satisfice: read something plausible, correct two details, and ship your opinions believing they were their own. Two options force an actual choice. Present both, state the condition under which each wins, and let them pick.
+
+Say plainly how much of the flow is yours: *"Steps 1–2 are from your description. Steps 3–6 are mine — treat them as a proposal, not a plan."*
+
+**Compile.** Convert the plan — theirs, yours, or both — into a walkable spec. For every step, record four fields:
 
 | Field | Meaning |
 |---|---|
