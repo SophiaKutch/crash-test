@@ -62,6 +62,42 @@ so the next session picks up the reasoning instead of quietly re-deciding it.
 What you end up with is a plan neither of you would have written alone, where you
 can point to every place you disagreed and say what you chose.
 
+### Most of us were never taught the discipline that finds these
+
+Plenty of us ship user-facing features without ever having been taught UI or UX
+practice. It's a separate discipline with its own decades of research and its own
+professionals, and there is no particular reason a backend engineer, a data
+engineer, or a self-taught developer would have absorbed it. Most curricula and
+bootcamps spend almost no time on it.
+
+The consequence isn't that engineers build ugly things. It's subtler and more
+expensive: **you can't tell which of your decisions were decisions.** The
+difference between a toast and a persistent bar doesn't register as a fork in the
+road — it registers as an implementation detail, so it gets settled by whatever was
+easiest to write. And when something does feel off, you can't name it, which means
+you can't raise it in review or defend it when someone pushes back.
+
+The feedback loop doesn't help either. Design critique usually arrives as taste —
+*"this feels clunky," "it's not intuitive"* — which is unfalsifiable and
+unactionable. You can't fix "clunky."
+
+`crash-test` gives you the method instead of the taste. It takes the **user story**
+you already know from ticket-writing — *a specific person, a specific goal* — and
+actually runs it, step by step, instead of using it as a template you fill in after
+the decision is made. Each step is checked against four named gates, so a finding
+comes back as *"gate G3 failed: the label describes the mechanism, not the
+outcome"* — with the line of your plan quoted, the principle named, and a cited
+example of how a shipped product solved it.
+
+That's the difference between being told your design is clunky and being shown
+which decision made it clunky, why, and what the alternatives are. It's also how
+the vocabulary sticks: you learn each principle attached to a concrete failure in
+your own plan rather than as theory you'd skim. After a few runs you start catching
+G3 failures yourself, before the agent does — which is the actual goal. The
+reference material is written to be read on its own for exactly that reason, and
+[`references/ux-lenses.md`](skills/crash-test/references/ux-lenses.md) is the place
+to start.
+
 ## What it looks like
 
 ```
