@@ -1,0 +1,29 @@
+{
+    "name": "crash-test",
+    "owner": {
+        "name": "Sophia Kutch",
+        "url": "https://github.com/SophiaKutch"
+    },
+    "description": "Crash stand-in users into your plan before you build it.",
+    "plugins": [
+        {
+            "name": "crash-test",
+            "source": "./",
+            "description": "Stress-test a product or feature plan by compiling it into a walkable spec and running research-grounded stand-in users against it. Every blocker becomes a decision you rule on; findings separate facts about your document from predictions about people.",
+            "author": {
+                "name": "Sophia Kutch"
+            },
+            "homepage": "https://github.com/SophiaKutch/crash-test",
+            "license": "MIT",
+            "category": "engineering",
+            "keywords": [
+                "planning",
+                "design",
+                "ux",
+                "spec-review",
+                "cognitive-walkthrough",
+                "product"
+            ]
+        }
+    ]
+}
