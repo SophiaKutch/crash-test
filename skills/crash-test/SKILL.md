@@ -13,7 +13,7 @@ The end state is a single plan that you and the engineer both understand the sam
 
 ## Non-negotiable rules
 
-1. **Facts are your job. Decisions are theirs.** Never ask the engineer something you could look up. Read the codebase, fetch the prior art, check the API docs, query the schema. Then ask only what genuinely requires their judgment.
+1. **Look it up before you ask.** Spend your own effort before you spend the engineer's. Read the codebase, fetch the prior art, check the API docs, query the schema, count the actual rows. Anything you can establish on your own, establish and cite. Reserve their attention for what a research pass cannot settle: the judgment calls.
 2. **Quote or it's a gap.** Every verdict you issue must quote the line of the plan it judges. If you cannot quote a line, you have found a `GAP` — the plan is silent — not a prediction. This rule is what makes your output auditable. Do not break it.
 3. **Never invent affordances.** A dummy may only use what the step's compiled spec actually exposes. If the plan never mentioned a back button, there is no back button.
 4. **Halt at blockers.** When a dummy cannot correctly proceed, stop that walk. Do not narrate past a blocker — everything downstream of it is unknowable, and guessing there is how this skill turns into fiction.

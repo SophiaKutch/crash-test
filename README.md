@@ -221,28 +221,30 @@ useful thing you learn on a first run.
 
 Two rules do most of the work.
 
-**"Finding facts is your job, never the user's."** Anything the agent could look
-up, it looks up — your codebase, prior art, API docs, the schema. Only genuine
-judgment calls reach you. This comes from Matt Pocock's
-[`grill-me`](https://github.com/mattpocock/skills), the closest relative to this
-skill and worth using for problems where interrogation fits better than
-simulation.
+**Look it up before you ask.** Your attention is the scarce resource in this
+process, so the agent spends its own first. Anything it can establish without you
+— your codebase, prior art, API limits, the schema, the actual row counts — it
+establishes on its own and cites. What reaches you is only what genuinely requires
+your judgment, which is the part a research pass cannot settle.
 
-**Questions have to be earned.** `grill-me` asks you to *generate* answers to
-abstract forks. `crash-test` never asks a question that doesn't arrive with a
-concrete failure narrative attached. People are much better at ruling on a story
-than at answering an abstraction — and an engineer who doesn't yet know what they
-don't know can still recognise that Marcus is stuck.
+**Questions have to be earned.** Planning tools that interview you ask you to
+*generate* answers to abstract forks: "how should selection behave?", "what's your
+density strategy?" That's the wrong ask for someone who doesn't yet know what they
+don't know. `crash-test` never asks a question that doesn't arrive with a concrete
+failure narrative attached. People are far better at ruling on a story than at
+answering an abstraction — you may not have a density strategy, but you can
+immediately tell that Marcus is stuck and that it matters.
 
 ## Prior art & credits
 
 - **Cognitive walkthrough** — Wharton, Rieman, Lewis & Polson (1994), *The
-  Cognitive Walkthrough Method: A Practitioner's Guide*. The four gates.
-- **[`grill-me`](https://github.com/mattpocock/skills)** by Matt Pocock — the
-  facts/decisions split, and the frontier idea this skill re-derives from
-  simulation depth rather than a dependency graph.
+  Cognitive Walkthrough Method: A Practitioner's Guide*. The four gates, and the
+  practice of evaluating a design one step at a time against a stated user goal.
 - **Premortem** — Gary Klein. The stance behind halting at blockers instead of
   narrating a plan that works.
+- **Snag lists and shakedown runs** — the construction and aviation practice of
+  walking a finished thing looking for defects before it enters service, rather
+  than reviewing the drawings and hoping.
 
 ## Contributing
 
