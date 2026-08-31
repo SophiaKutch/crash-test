@@ -33,9 +33,34 @@ what the toast says, what happens on partial failure, whether selection survives
 a scroll. Each one plausible. Some wrong. None written down, none agreed to, and
 all of them now load-bearing.
 
-`crash-test` closes both gaps at once by making the plan get *walked* before it
-gets built, and by producing a record of every decision the two of you actually
-made.
+### You and the AI are holding two different plans
+
+That's the deeper problem. The same four bullets produce one implementation in
+your head and a different one in the agent's, and **neither of you knows where the
+two diverge.** You find out by reading the diff — which is late, and which shows
+you the code rather than the decision behind it.
+
+The usual fixes both fail. Specifying everything up front doesn't work, because
+the decisions you'd need to write down are precisely the ones you haven't thought
+of yet; that's what makes them expensive. And reviewing after the fact doesn't
+work either, because by then you're evaluating an implementation instead of
+choosing between options, and the cost of changing your mind has gone up
+tenfold.
+
+`crash-test` makes the divergence **enumerable before either of you commits to
+anything.** Every `GAP` it reports is a place the agent would otherwise have
+guessed on your behalf. Every ruling you make is a place you took the wheel. And
+every disagreement — including the ones where you overrule the agent outright —
+gets written into the decision log with your reasoning next to its recommendation.
+
+Overruling is a first-class outcome, not a failure state. Agreement here doesn't
+mean the agent deferring to you or you accepting its proposal; it means neither of
+you is operating on an assumption the other didn't see. When the walk converges,
+you have one plan you both read the same way, and a record of how you got there —
+so the next session picks up the reasoning instead of quietly re-deciding it.
+
+What you end up with is a plan neither of you would have written alone, where you
+can point to every place you disagreed and say what you chose.
 
 ## What it looks like
 
