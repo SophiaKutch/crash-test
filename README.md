@@ -121,9 +121,17 @@ to start.
       ⚠️ Blocks all 4 dummies. Steps 4–5 unknowable until specified.
 ```
 
-See [`examples/bulk-archive.md`](examples/bulk-archive.md) for a full two-run
-session on a four-bullet plan — it finds two gaps, two conflicts, a
-partial-failure state nobody considered, and one tradeoff made explicit.
+Two worked examples:
+
+- **[`examples/plant-app/`](examples/plant-app/) — a real session, start to finish.**
+  One paragraph of an idea in; 17 decisions out, across four walks. It finds a
+  platform constraint that decides the product before any dummy moves, catches a
+  dummy *completing* the flow without the product doing its job, and includes two
+  places the agent withdrew its own recommendation after re-walking. The three
+  artifacts it produced are in that directory, along with an honest account of what
+  the run got wrong.
+- **[`examples/bulk-archive.md`](examples/bulk-archive.md)** — a short synthetic case
+  on a four-bullet plan, if you just want to see the shape of a finding.
 
 ## Install
 
