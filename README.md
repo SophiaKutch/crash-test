@@ -2,17 +2,42 @@
 
 **Crash stand-in users into your plan before you build it.**
 
-An agent skill for the gap between "I have an idea" and "I'm writing code" — where
-most product decisions get made accidentally, by whoever typed first.
+> You bring a plan. `crash-test` researches it, casts stand-in users, crashes them
+> into the plan, and every wreck becomes a decision you rule on — then it re-runs
+> to see what your ruling broke.
 
-You bring a plan. `crash-test` researches the problem, casts **dummies** —
-deliberately imperfect stand-in users — gives each one a real job, and walks them
-through your plan step by step. Every place a dummy stalls becomes a decision you
-rule on. Then it re-walks, because your ruling almost certainly broke something
-downstream.
+An agent skill for the gap between *"I have an idea"* and *"I'm writing code"* —
+where most product decisions get made accidentally, by whoever typed first.
 
-The output is not a plan the agent wrote or a plan you wrote. It's one plan where
-every point of disagreement was surfaced, decided by you, and written down.
+---
+
+## The problem
+
+Plans read as complete because prose hides holes.
+
+You write four bullets in a ticket. They're clear, they're reviewable, everyone
+nods. Then you're three days into the implementation and you discover the plan
+never said what happens when the list is empty. Or that the archive action can't
+be undone. Or that the button label means "permanently delete" to the users who
+came from your competitor. Or that the endpoint caps at 100 IDs and your bulk
+action sends 400.
+
+None of those are bugs. Code review won't catch them, because the code correctly
+implements a plan that was never finished. They surface in QA at best, in a
+support ticket at worst, and the fix costs fifty times what it would have cost as
+an edit to a markdown file.
+
+**And it's worse when you hand the plan to an AI.** A coding agent will happily
+build all four bullets and silently make forty micro-decisions you never saw —
+what the toast says, what happens on partial failure, whether selection survives
+a scroll. Each one plausible. Some wrong. None written down, none agreed to, and
+all of them now load-bearing.
+
+`crash-test` closes both gaps at once by making the plan get *walked* before it
+gets built, and by producing a record of every decision the two of you actually
+made.
+
+## What it looks like
 
 ```
 🚧 HALTED — Marcus (400 rows, interrupted) · Job: "get last quarter off my list"
@@ -30,44 +55,73 @@ every point of disagreement was surfaced, decided by you, and written down.
       ⚠️ Blocks all 4 dummies. Steps 4–5 unknowable until specified.
 ```
 
----
+See [`examples/bulk-archive.md`](examples/bulk-archive.md) for a full two-run
+session on a four-bullet plan — it finds two gaps, two conflicts, a
+partial-failure state nobody considered, and one tradeoff made explicit.
 
-## Why "simulated users" isn't hand-waving
+## Install
 
-The obvious objection: an AI imagining that a fictional person got confused is
-worthless. Correct — so the mechanism is built to make that the *minority* of
-what it produces.
+**As a Claude Code plugin:**
 
-Before anything walks, your plan is compiled into an explicit spec where every
-step must answer four questions: what's **visible**, what **actions** exist, what
-the **copy** literally says, and what happens **next**. Most plans can't answer
-those for most of their steps. Every blank is a finding, and it's a finding about
-your document — not a guess about people.
+```
+/plugin marketplace add SophiaKutch/crash-test
+/plugin install crash-test@crash-test
+```
 
-**Every verdict must quote the line of your plan it judges.** No quote means it
-isn't a prediction, it's a gap. That rule makes the whole run auditable: you can
-check each finding against your own text.
+**Try it before installing:**
 
-Findings sort into three classes, and only one is speculation:
+```bash
+git clone https://github.com/SophiaKutch/crash-test.git
+claude --plugin-dir ./crash-test
+```
 
-| Class | What it is | Objective? |
+**Or drop it into a single project** — copy `skills/crash-test/` into that
+project's `.claude/skills/` directory. Nothing else in the repo is required at
+runtime; `examples/` and `README.md` are documentation.
+
+Works with any agent that reads `SKILL.md` files. No dependencies, no build step,
+no scripts — it's markdown all the way down, so you can read every instruction it
+follows before you trust it with your plan.
+
+## Usage
+
+```
+/crash-test
+```
+
+Then point it at a plan. It accepts anything: a markdown spec, a Jira ticket, a
+design doc, a PR description, or three paragraphs typed into the chat.
+
+```
+/crash-test  docs/plans/bulk-archive.md
+/crash-test  CHD-1234
+/crash-test  "Let users archive multiple records at once from the list view"
+```
+
+### What happens, in five phases
+
+| Phase | What it does | What you do |
 |---|---|---|
-| **GAP** | The plan is silent. A field in the spec is blank. | Yes — check it against your doc |
-| **CONFLICT** | Two parts of the plan contradict, or contradict the codebase | Yes — cited on both sides |
-| **PREDICTION** | Plan is clear and complete; the agent still expects failure | No — tagged with confidence |
+| **0 · Recon & compile** | Researches in parallel — your codebase, how shipped products solve this, API and platform limits, any real evidence about your users. Then compiles your plan into a step-by-step spec where every step must state what's visible, what actions exist, what the copy literally says, and what happens next. | Read the compiled spec. Correct any misreadings — a misread step invalidates everything downstream of it. |
+| **1 · Cast** | Proposes 3–4 **dummies**: stand-in users spanning the axes that actually break products — frequency of use, motivation, working context, data volume, and the mental model they arrive with. Plus exactly one worst case. Every trait is tagged with where it came from. | Edit the cast. Fix anything tagged `[INVENTED ⚠️]` — you almost certainly know the real answer, and this is the cheapest, highest-leverage checkpoint in the whole run. |
+| **2 · Walk** | Each dummy attempts their job against the spec, step by step, evaluated against four gates. Halts at the first blocker. | Nothing — read the wrecks. |
+| **3 · Rulings** | Blockers ranked by how many dummies they block and what they cost to fix, each with a recommendation and a citation. | Rule on each one: **accept**, **substitute** your own fix, or **overrule** the finding entirely. All three are valid and all three get recorded. |
+| **4 · Re-walk** | Applies your rulings and re-runs the whole cast. Reports newly reachable steps, and regressions your ruling just created. | Rule again. Repeat 2–4 until it converges. |
+| **5 · Converge** | Writes the artifacts. | Ship a plan you actually agree with. |
 
-In practice the first two dominate. And if you distrust the third entirely, run
-`--advisory`: predictions get logged, only gaps and conflicts gate the finish
-line. The mechanism doesn't depend on the speculative part.
+### It only asks about blockers
 
-## The frontier
+A simulated user can generate nits forever. Non-blocking friction gets logged and
+revisited at the end; only things that genuinely stop a dummy interrupt you. A run
+that surfaces four blockers gets acted on. A run that surfaces thirty findings
+gets skimmed.
 
-A dummy blocked at step 4 makes steps 5–12 **unknowable**. You physically cannot
-find the checkout friction until the signup friction is fixed.
+### The frontier
 
-So the walk halts at the first blocker and never narrates past it. Depth of reach
-*is* the frontier, and it advances only when you rule on something. That gives
-you a progress metric for design quality, which is unusual:
+A dummy blocked at step 4 makes steps 5–12 **unknowable** — you physically cannot
+find the checkout problem until the signup problem is fixed. So the walk halts at
+blockers and never narrates past them, and depth of reach only advances when you
+rule on something. That gives you a progress bar for plan quality:
 
 ```
                     Job A      Job B      Job C
@@ -77,96 +131,101 @@ Priya (mobile)      5/7 🚧     6/6 ✅     —
 Worst case (10k)    7/7 ✅     6/6 ✅     1/5 🚧
 ```
 
-## Built on a real method
-
-The four gates are the **cognitive walkthrough** (Wharton, Rieman, Lewis &
-Polson, 1994), a usability inspection method that predates all of this by three
-decades:
-
-| Gate | Question | What it teaches |
-|---|---|---|
-| **G1 Goal** | Will they try the right thing here? | Mental models, goal formation |
-| **G2 Notice** | Will they see the action is available? | Discoverability, hierarchy |
-| **G3 Associate** | Will they connect it to their goal? | Affordance, labelling, microcopy |
-| **G4 Feedback** | Will they see that it worked? | System status, error recovery |
-
-Every finding is tagged with the gate that failed. That's how the UX principles
-land — diagnostically, attached to a concrete failure in your own plan, rather
-than as theory you'd skim.
-
-## Install
-
-As a Claude Code plugin:
-
-```
-/plugin marketplace add SophiaKutch/crash-test
-/plugin install crash-test@crash-test
-```
-
-Or drop `skills/crash-test/` into `.claude/skills/` in any project.
-
-Try it locally first: `claude --plugin-dir /path/to/crash-test`
-
-## Use
-
-```
-/crash-test
-```
-
-Then point it at a plan — a markdown spec, a ticket, a design doc, or three
-paragraphs in the chat. It runs five phases:
-
-| Phase | What happens |
-|---|---|
-| **0 · Recon & compile** | Parallel research (codebase, prior art, constraints, real user evidence), then your plan becomes a walkable spec. Gaps surface here. |
-| **1 · Cast** | 3–4 dummies proposed, each trait tagged with provenance. You edit the list. Cheapest alignment checkpoint in the run. |
-| **2 · Walk** | Each dummy attempts their job. Four gates per step. Halt at the first blocker. |
-| **3 · Rulings** | Blockers ranked and put to you, each with a cited recommendation. You accept, substitute, or overrule. |
-| **4 · Re-walk** | Reports newly reachable steps and regressions your ruling created. Repeat 2–4. |
-| **5 · Converge** | Every dummy finishes, zero gaps, zero conflicts, every prediction fixed or knowingly accepted. |
-
 ### Modes
 
 | Flag | Effect |
 |---|---|
-| `--advisory` | Predictions never block convergence. Only gaps and conflicts gate the finish line. |
-| `--dev-cast` | The user is a developer reading your API, types, and error messages. Same four gates. For refactors, queues, schemas — work with no end-user surface. |
-| `--verified-only` | Only mechanically checkable gates: contrast, tap targets, tab order, focus, overflow. Marked `VERIFIED`, never `PREDICTED`. |
+| `--advisory` | Predictions never block convergence — only gaps and conflicts do. Use this if you don't want to argue with a simulated person. |
+| `--dev-cast` | The user is a **developer** reading your API, types, and error messages. Same four gates. Use for refactors, queues, schemas, internal libraries — anything with no end-user surface. |
+| `--verified-only` | Runs only the gates that can be mechanically checked: contrast ratio, tap targets, tab order, focus visibility, overflow. Marked `VERIFIED`, never `PREDICTED`. |
 
 ## What you get
 
-Three artifacts, committed alongside your plan:
+Three artifacts, written alongside your plan and meant to be committed:
 
-- **`walkable-spec.md`** — the converged spec, the shared source of truth
-- **`cast.md`** — the approved dummies and their provenance
-- **`decision-log.md`** — every ruling: the failure that forced it, what the agent
-  recommended, what you decided, and **where the two of you differed and why**
+| File | Contents |
+|---|---|
+| `walkable-spec.md` | The converged spec. Every step, every state, no blanks. The shared source of truth. |
+| `cast.md` | The approved dummies and the provenance of every trait. |
+| `decision-log.md` | Every ruling: the failure that forced it, what the agent recommended, what you decided, and **where the two of you differed and why.** |
 
-That last field is the point of the whole exercise.
+That last column is the point of the whole exercise. The output isn't a plan the
+agent wrote or a plan you wrote — it's one plan where every point of disagreement
+was surfaced, decided by you, and written down. Six months later, "why isn't this
+a modal?" has an answer.
+
+## Why "simulated users" isn't hand-waving
+
+The obvious objection: an AI imagining that a fictional person got confused is
+worthless. Correct — so the mechanism is built to make that the *minority* of what
+it produces.
+
+**Every verdict must quote the line of your plan it judges.** No quote means it
+isn't a prediction, it's a gap. That single rule makes the whole run auditable: you
+can check each finding against your own text.
+
+Findings sort into three classes, and only one is speculation:
+
+| Class | What it is | Objective? |
+|---|---|---|
+| **GAP** | The plan is silent. A required field in the spec is blank. | **Yes** — verify it against your own doc |
+| **CONFLICT** | Two parts of the plan contradict, or contradict your codebase | **Yes** — cited on both sides |
+| **PREDICTION** | The plan is clear and complete; the agent still expects a human to fail | **No** — always tagged with a confidence level |
+
+In practice the first two dominate, especially on a first run. And if you distrust
+the third entirely, `--advisory` removes it from the finish line. The mechanism
+doesn't depend on the speculative part.
+
+## Built on a real method
+
+The four gates are the **cognitive walkthrough** (Wharton, Rieman, Lewis & Polson,
+1994), a usability inspection method that predates all of this by three decades:
+
+| Gate | Question | What a failure teaches |
+|---|---|---|
+| **G1 Goal** | Will they try to do the right thing here? | Mental models, goal formation, naming |
+| **G2 Notice** | Will they see the correct action is available? | Discoverability, visual hierarchy |
+| **G3 Associate** | Will they connect that action to their goal? | Affordance, labelling, microcopy |
+| **G4 Feedback** | Will they see that it worked? | System status, error recovery, undo |
+
+Every finding is tagged with the gate that failed. That's how the UX principles
+land — diagnostically, attached to a concrete failure in *your* plan, rather than
+as theory you'd skim. If you've ever felt that design feedback was vague or
+unfalsifiable, this is the antidote: a named gate, a quoted line, and a cited fix.
+
+The reference material is readable on its own, whether or not you run the skill:
+
+- [`references/gates.md`](skills/crash-test/references/gates.md) — the four gates, their failure signatures, and typical fixes
+- [`references/casting.md`](skills/crash-test/references/casting.md) — how to build stand-in users that find things
+- [`references/findings.md`](skills/crash-test/references/findings.md) — the finding taxonomy, severity, and halting rules
+- [`references/compiling.md`](skills/crash-test/references/compiling.md) — turning a prose plan into something walkable
+- [`references/ux-lenses.md`](skills/crash-test/references/ux-lenses.md) — the design principles it cites, plus a pattern-space table
+- [`references/developer-cast.md`](skills/crash-test/references/developer-cast.md) — the four gates applied to APIs and internal work
 
 ## What this is not
 
 **It is not user research.** Dummies are plausibility engines. They over-comply,
 under-fumble, and systematically miss the things that actually kill features —
 habit, laziness, muscle memory, and not caring. A full coverage table means your
-plan is *coherent*. It is not evidence your product *works*. The skill says this
-out loud at the end of every run, and the name is a reminder: nobody mistakes a
+plan is *coherent*. It is not evidence your product *works*. The skill says so out
+loud at the end of every run, and the name is the reminder: nobody mistakes a
 crash-test dummy for a driver.
 
 **It does not write feature code.** It edits the plan. Something else builds it.
 
 **It can only walk what you specify.** A vague plan in, vague findings out — with
-the mitigation that the vagueness itself gets itemised.
+the mitigation that the vagueness itself gets itemised, which is usually the most
+useful thing you learn on a first run.
 
 ## Design notes
 
-Two rules do most of the work, and both were worth stealing:
+Two rules do most of the work.
 
 **"Finding facts is your job, never the user's."** Anything the agent could look
-up, it looks up — codebase, prior art, API docs, schema. Only genuine judgment
-calls reach you. This comes from Matt Pocock's
-[`grill-me`](https://github.com/mattpocock/skills), which is the closest relative
-to this skill and worth using for problems where interrogation fits better than
+up, it looks up — your codebase, prior art, API docs, the schema. Only genuine
+judgment calls reach you. This comes from Matt Pocock's
+[`grill-me`](https://github.com/mattpocock/skills), the closest relative to this
+skill and worth using for problems where interrogation fits better than
 simulation.
 
 **Questions have to be earned.** `grill-me` asks you to *generate* answers to
@@ -181,17 +240,17 @@ don't know can still recognise that Marcus is stuck.
   Cognitive Walkthrough Method: A Practitioner's Guide*. The four gates.
 - **[`grill-me`](https://github.com/mattpocock/skills)** by Matt Pocock — the
   facts/decisions split, and the frontier idea this skill re-derives from
-  simulation depth.
-- **Premortem** — Gary Klein. The stance behind halting at blockers rather than
+  simulation depth rather than a dependency graph.
+- **Premortem** — Gary Klein. The stance behind halting at blockers instead of
   narrating a plan that works.
 
 ## Contributing
 
-Findings about the skill's own findings are especially welcome: cases where a
-dummy produced a confident prediction that turned out to be wrong, or where a
-`GAP` was really the agent failing to read the plan properly. Both are calibration
-bugs and both matter more than new features.
+Findings about the skill's own findings are especially welcome: a dummy that
+produced a confident prediction which turned out to be wrong, or a `GAP` that was
+really the agent failing to read the plan properly. Both are calibration bugs, and
+both matter more than new features.
 
 ## License
 
-MIT
+MIT — see [LICENSE](LICENSE).
