@@ -22,6 +22,8 @@ The end state is a single plan that you and the engineer both understand the sam
 5. **Only blockers get asked about.** Non-blocking friction is logged and deferred. A dummy can generate nits forever; the engineer's attention is finite.
 6. **The engineer can overrule anything.** When they do, record what you predicted, what they ruled, and why. That record is the deliverable, not a footnote to it.
 7. **Never silently truncate.** If you capped a run, skipped a dummy, or dropped findings, say so explicitly and say what you dropped.
+8. **One decision per response.** Never end a message asking the engineer to answer a numbered list of structural questions. One ruling, or at most two if they are genuinely orthogonal. Batching feels efficient and is not: rulings cascade, so answers three and four are given against a spec that answer one is about to change. A response that asks for seven decisions will get seven shallow ones.
+9. **Ask for a verdict, not a document edit.** "Correct the cast" is not a question — it is homework, and it will be skipped. Ask something answerable in a sentence: *"Which of these four doesn't exist among your users?"*
 
 ## Phase 0 — Recon, sketch, compile
 
@@ -81,7 +83,30 @@ Each dummy needs:
 - **A trait set**, each trait tagged with provenance: `[support-tickets]`, `[prior-art]`, `[repo]`, or `[INVENTED ⚠️]`.
 - **A job** they will attempt against the plan.
 
-Present the cast for approval using `assets/cast.template.md`. The engineer edits it. This is the cheapest alignment checkpoint in the whole skill — reviewing a list of people is far easier than answering abstract design questions — so do not skip it or rush past it.
+### Presenting the cast
+
+Write the full trait tables to `assets/cast.template.md`. **Do not put them in the conversation.** Six traits × four dummies is thirty cells for the engineer to review before they have seen a single finding, and they have no basis yet for judging any of it.
+
+In the conversation, one line each:
+
+```
+Jules   — recruited everyone, checks daily · "get my friends to put their phones down with me"
+Sam     — joined because Jules asked, doesn't want to change · "not be the reason everyone's annoyed"
+Priya   — phone is a work tool, constantly interrupted · "join in without being punished for my job"
+Dev     — worst case: joined late, plant already dying · "is this still worth caring about"
+```
+
+Then ask **one** question: *"Which of these four doesn't exist among your users?"* Nothing else. Not "edit the cast," not "correct the traits" — those get skipped, and the skip is your fault, not theirs.
+
+### The real cast checkpoint is after run 1
+
+An engineer cannot judge a trait table in the abstract. They can judge behaviour. So the checkpoint that matters comes *after* the first walk, when each dummy has done something concrete:
+
+> *"Sam set a four-hour limit and coasted. Do your users do that, or is Sam a strawman I built to have someone to catch?"*
+
+That question is answerable. Ask it once, after run 1, and only about the dummy whose findings are load-bearing.
+
+**If the cast is never corrected**, say so at convergence and stamp the artifacts: every `[INVENTED ⚠️]` trait stands unverified, and any structural decision made to defeat a dummy may be defending against someone who does not exist. Do not let silence read as approval.
 
 ## Phase 2 — Walk
 
@@ -120,9 +145,28 @@ Halt that dummy's walk at the first blocker. Continue with the other dummies —
 
 ## Phase 3 — Rulings
 
-Rank blockers by `dummies blocked × blocking severity × inverse cost to fix`. Present them together, numbered, each with your recommendation. Then stop and wait.
+Rank blockers by `dummies blocked × blocking severity × inverse cost to fix`. Then **ask about the top one only.**
+
+Not a numbered list of four. One. Rulings cascade — that is the entire reason Phase 4 exists — so a ruling on the top blocker frequently makes the second one moot, changes what the third one should be, or invalidates the assumption the fourth was resting on. Asking for all four buys you four answers to a spec that no longer exists after the first.
+
+Show the rest as a visible queue so the engineer knows what is coming and can jump ahead if they want to:
+
+```
+Ruling needed — blocker 1 of 4
+
+  <the finding, the quote, your recommendation, the citation>
+
+Queued behind this, and likely to change once you rule:
+  2 · which apps count toward the limit
+  3 · no recovery path from a dying plant
+  4 · the 30-day commitment
+```
+
+**Structural versus mechanical.** The one-at-a-time rule applies to decisions that change the *shape* of the thing — what gets measured, how failure lands, who can see what. Mechanical decisions — a number, a label, a visibility toggle — can be batched up to about five, but only if each carries a default and you say plainly that silence accepts the defaults. Never mix the two in one response: a structural question buried among five mechanical ones gets answered mechanically.
 
 Do not proceed on a blocker the engineer has not ruled on. Do not batch a ruling with an implementation. The engineer may accept your recommendation, substitute their own, or overrule the finding entirely — all three are valid outcomes and all three get recorded.
+
+**Watch for a ruling that answers a different question than you asked.** If the finding was about who can *see* a limit and the ruling is about who *sets* it, the blocker is not resolved. Say so, state the reading you are proceeding on, and flag it — do not quietly treat it as closed.
 
 When a decision is genuinely open — several defensible shapes, no evidence favouring one — present the options with the conditions under which each wins rather than pushing a single answer. `references/ux-lenses.md` carries the pattern vocabulary for this.
 

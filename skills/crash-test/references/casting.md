@@ -61,7 +61,17 @@ Each trait carries where it came from:
 
 `[INVENTED]` is allowed. Silently invented is not. The engineer reads the cast to find those tags, and correcting them is the highest-leverage thing they do in Phase 1 — they usually know the real answer and would never have volunteered it unprompted.
 
-## Rule 6 — The engineer can play a dummy
+## Rule 6 — Present one line per dummy, not a table
+
+The full trait tables belong in `cast.md`, not in the conversation. A table of six traits across four dummies is thirty cells to review before the engineer has seen a single finding — and at that point they have no basis for judging any of it. It reads as homework and it gets skipped.
+
+In conversation, one line each: name, defining trait, goal. Then ask a single answerable question — *"which of these four doesn't exist among your users?"*
+
+The checkpoint that actually works comes **after the first walk**, when each dummy has done something concrete. *"Sam set a four-hour limit and coasted — do your users do that, or did I build a strawman?"* is answerable in a sentence. *"Correct the cast"* is not.
+
+If the cast is never corrected, stamp it: `[INVENTED ⚠️]` traits stand unverified, and any structural decision made to defeat a dummy may be defending against nobody. Never let silence read as approval.
+
+## Rule 7 — The engineer can play a dummy
 
 When a walk hits a contested step and your confidence is low, ask: *"What would Marcus actually do here?"* Take their answer as canon and record it as `[engineer]`.
 

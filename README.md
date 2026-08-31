@@ -198,18 +198,26 @@ should selection work?"* from a blank page.
 | Phase | What it does | What you do |
 |---|---|---|
 | **0 · Recon, sketch, compile** | Researches in parallel — your codebase, how shipped products solve this, API and platform limits, any real evidence about your users. Sketches any part of the flow you haven't specified, marked `[STRAWMAN]`. Then compiles the whole thing into a step-by-step spec where every step must state what's visible, what actions exist, what the copy literally says, and what happens next. | Read it. Correct misreadings and push back on the sketch — a wrong step invalidates everything downstream of it. |
-| **1 · Cast** | Proposes 3–4 **dummies**: stand-in users spanning the axes that actually break products — frequency of use, motivation, working context, data volume, and the mental model they arrive with. Plus exactly one worst case. Every trait is tagged with where it came from. | Edit the cast. Fix anything tagged `[INVENTED ⚠️]` — you almost certainly know the real answer, and this is the cheapest, highest-leverage checkpoint in the whole run. |
+| **1 · Cast** | Proposes 3–4 **dummies**: stand-in users spanning the axes that actually break products — frequency of use, motivation, working context, data volume, and the mental model they arrive with. Plus exactly one worst case. One line each; full trait tables go in the artifact, not the chat. | Answer one question: *which of these four doesn't exist among your users?* The real check comes after run 1, when each dummy has actually done something you can judge. |
 | **2 · Walk** | Each dummy attempts their job against the spec, step by step, evaluated against four gates. Halts at the first blocker. | Nothing — read the wrecks. |
-| **3 · Rulings** | Blockers ranked by how many dummies they block and what they cost to fix, each with a recommendation and a citation. | Rule on each one: **accept**, **substitute** your own fix, or **overrule** the finding entirely. All three are valid and all three get recorded. |
+| **3 · Rulings** | Blockers ranked, then **the top one put to you on its own**, with a recommendation and a citation. The rest are shown as a queue. | Rule on it: **accept**, **substitute** your own fix, or **overrule** the finding entirely. All three are valid and all three get recorded. |
 | **4 · Re-walk** | Applies your rulings and re-runs the whole cast. Reports newly reachable steps, and regressions your ruling just created. | Rule again. Repeat 2–4 until it converges. |
 | **5 · Converge** | Writes the artifacts. | Ship a plan you actually agree with. |
 
-### It only asks about blockers
+### It only asks about blockers, one at a time
 
 A simulated user can generate nits forever. Non-blocking friction gets logged and
 revisited at the end; only things that genuinely stop a dummy interrupt you. A run
 that surfaces four blockers gets acted on. A run that surfaces thirty findings
 gets skimmed.
+
+And it asks about **one blocker per turn**, never a numbered list. That isn't
+politeness — it's forced by the cascade. Ruling on the top blocker routinely makes
+the second moot, changes what the third should be, and invalidates the assumption
+the fourth was resting on. Asking for four answers at once buys you four answers to
+a spec that stops existing after the first one. Mechanical choices — a number, a
+label, a toggle — do get batched, each with a default, and never mixed into the
+same message as a structural question.
 
 ### The frontier
 
